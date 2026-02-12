@@ -60,14 +60,38 @@
                 Console.WriteLine($"Course ID: {item.CourseID}, Course Name: {item.CourseName}, Course Code: {item.CourseCode}, Course Credit: {item.CourseCredit}");
             }
 
-            // Register a new student
-            Student student = RegisterStudent();
+            bool exit = false;
 
-            // Add the student to the list of students
-            students.Add(student);
+            while (!exit)
+            {
+                // Display the menu
+                Console.WriteLine("---------------------------");
+                Console.WriteLine("Student Registration System");
+                Console.WriteLine("1 - Register Student");
+                Console.WriteLine("2 - Exit");
 
-            // Display the registered student
-            Console.WriteLine($"\nStudent Registered: {student.StudentName} {student.StudentSurname}");
+                // Get user input
+                Console.Write("Please enter your choice: ");
+                string userChoice = Console.ReadLine();
+
+                if (userChoice == "1")
+                {
+                    // Register a new student
+                    Student student = RegisterStudent();
+                    Console.WriteLine($"Student Registered: {student.StudentName} {student.StudentSurname}");
+                }
+                else if (userChoice == "2" || userChoice.Equals("exit", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Exit the program
+                    exit = true;
+                    Console.WriteLine("Exiting the program...");
+                }
+                else
+                {
+                    // Invalid input
+                    Console.WriteLine("Invalid choice, please try again.");
+                }
+            }
 
             Console.ReadLine();
         }
