@@ -6,10 +6,24 @@
         public static Student RegisterStudent()
         {
             Console.WriteLine("\nEnter Student ID:");
-            int studentID = Convert.ToInt32(Console.ReadLine());
+            // int studentID = Convert.ToInt32(Console.ReadLine());
+
+            // Check if input is a valid number
+            int studentID;
+            if (!int.TryParse(Console.ReadLine(), out studentID))
+            {
+                throw new ArgumentException("Student ID must be a number.");
+            }
 
             Console.WriteLine("Enter Student Name:");
             string studentName = Console.ReadLine();
+
+            // Check if name exceeds 10 characters
+            if (studentName.Length > 10)
+            {
+                throw new ArgumentException("Student Name must not exceed 10 characters.");
+            }
+
 
             //Console.WriteLine("Enter Student Surname:");
             //string studentSurname = Console.ReadLine();
@@ -99,49 +113,64 @@
 
             while (!exit)
             {
-                // Display the menu
-                Console.WriteLine("---------------------------");
-                Console.WriteLine("Student Registration System");
-                Console.WriteLine("Total Student Count = " + students.Count);
-                Console.WriteLine("1 - Register Student");
-                Console.WriteLine("2 - Display All Students");
-                Console.WriteLine("3 - Find Student by ID");
-                Console.WriteLine("4 - Exit");
+                try
+                {
+                    // Display the menu
+                    Console.WriteLine("---------------------------");
+                    Console.WriteLine("Student Registration System");
+                    Console.WriteLine("Total Student Count = " + students.Count);
+                    Console.WriteLine("1 - Register Student");
+                    Console.WriteLine("2 - Display All Students");
+                    Console.WriteLine("3 - Find Student by ID");
+                    Console.WriteLine("4 - Exit");
 
-                // Get user input
-                Console.Write("Please enter your choice: ");
-                string userChoice = Console.ReadLine();
+                    // Get user input
+                    Console.Write("Please enter your choice: ");
+                    string userChoice = Console.ReadLine();
 
-                if (userChoice == "1")
-                {
-                    // Register a new student
-                    Student student = RegisterStudent();
-                    students.Add(student);
-                    Console.WriteLine($"Student Registered: {student.StudentName} {student.StudentSurname}");
+                    if (userChoice == "1")
+                    {
+                        // Register a new student
+                        Student student = RegisterStudent();
+
+                        Student? checkStudent =  students.Where(s => s.StudentID == student.StudentID).FirstOrDefault();
+                        if (checkStudent != null)
+                        {
+                            throw new ArgumentException("A student with this ID already exists. Student ID must be unique. Please Try Again.");
+                        }
+
+                        students.Add(student);
+                        Console.WriteLine($"Student Registered: {student.StudentName} {student.StudentSurname}");
+                    }
+                    else if (userChoice == "2")
+                    {
+                        // Display all registered students
+                        DisplayStudentList(students);
+                    }
+                    else if (userChoice == "3")
+                    {
+                        // Find a student by ID
+                        Console.Write("Enter Student ID to find: ");
+                        int studentID = Convert.ToInt32(Console.ReadLine());
+                        FindStudentByID(students, studentID);
+                    }
+                    else if (userChoice == "4" || userChoice.Equals("exit", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Exit the program
+                        exit = true;
+                        Console.WriteLine("Exiting the program...");
+                    }
+                    else
+                    {
+                        // Invalid input
+                        Console.WriteLine("Invalid choice, please try again.");
+                    }
                 }
-                else if (userChoice == "2")
+                catch (Exception ex)
                 {
-                    // Display all registered students
-                    DisplayStudentList(students);
-                }
-                else if (userChoice == "3")
-                {
-                    // Find a student by ID
-                    Console.Write("Enter Student ID to find: ");
-                    int studentID = Convert.ToInt32(Console.ReadLine());
-                    FindStudentByID(students, studentID);
-                }
-                else if (userChoice == "4" || userChoice.Equals("exit", StringComparison.OrdinalIgnoreCase))
-                {
-                    // Exit the program
-                    exit = true;
-                    Console.WriteLine("Exiting the program...");
-                }
-                else
-                {
-                    // Invalid input
-                    Console.WriteLine("Invalid choice, please try again.");
-                }
+                    // Catch any validation errors and show the error message
+                    Console.WriteLine($"Error: {ex.Message}");
+                }                
             }
 
             Console.ReadLine();
