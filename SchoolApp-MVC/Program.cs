@@ -1,7 +1,14 @@
+using SchoolApp_MVC.Data;
+using SchoolApp_MVC.Data.Interfaces;
+using SchoolApp_MVC.Services;
+using SchoolApp_MVC.Services.Interfaces;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<ICourseService, CourseService>();
 
 var app = builder.Build();
 
