@@ -1,5 +1,5 @@
-using SchoolApp_MVC.Data;
-using SchoolApp_MVC.Data.Interfaces;
+using SchoolApp_DAL.Data;
+using SchoolApp_DAL.Data.Interfaces;
 using SchoolApp_MVC.Services;
 using SchoolApp_MVC.Services.Interfaces;
 

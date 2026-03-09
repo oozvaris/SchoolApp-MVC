@@ -1,8 +1,9 @@
 using Microsoft.Data.SqlClient;
-using SchoolApp_MVC.Data.Interfaces;
-using SchoolApp_MVC.Models;
+using Microsoft.Extensions.Configuration;
+using SchoolApp_DAL.Data.Interfaces;
+using SchoolApp_DAL.Models;
 
-namespace SchoolApp_MVC.Data;
+namespace SchoolApp_DAL.Data;
 
 public class CourseRepository : ICourseRepository
 {

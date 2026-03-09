@@ -1,6 +1,6 @@
-using SchoolApp_MVC.Data.Interfaces;
+using SchoolApp_DAL.Data.Interfaces;
+using SchoolApp_DAL.Models;
 using SchoolApp_MVC.Dtos.Courses;
-using SchoolApp_MVC.Models;
 using SchoolApp_MVC.Services.Interfaces;
 
 namespace SchoolApp_MVC.Services;

@@ -1,6 +1,6 @@
-using SchoolApp_MVC.Models;
+using SchoolApp_DAL.Models;
 
-namespace SchoolApp_MVC.Data.Interfaces;
+namespace SchoolApp_DAL.Data.Interfaces;
 
 public interface ICourseRepository
 {

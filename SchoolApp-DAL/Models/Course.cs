@@ -1,4 +1,4 @@
-namespace SchoolApp_MVC.Models;
+namespace SchoolApp_DAL.Models;
 
 public class Course
 {
