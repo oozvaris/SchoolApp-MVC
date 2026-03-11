@@ -74,6 +74,25 @@ public class StudentRepository : IStudentRepository
         return await reader.ReadAsync() ? MapStudent(reader) : null;
     }
 
+    public async Task<Student?> GetByEmailAsync(string studentEmail)
+    {
+        const string sql = """
+                           SELECT TOP(1) StudentID, StudentName, StudentSurname, StudentEmail
+                           FROM dbo.Student
+                           WHERE StudentEmail = @StudentEmail
+                           ORDER BY StudentID;
+                           """;
+
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@StudentEmail", studentEmail);
+
+        await connection.OpenAsync();
+        await using var reader = await command.ExecuteReaderAsync();
+
+        return await reader.ReadAsync() ? MapStudent(reader) : null;
+    }
+
     public async Task<int> CreateAsync(Student student)
     {
         const string sql = """
@@ -91,6 +110,44 @@ public class StudentRepository : IStudentRepository
         await connection.OpenAsync();
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result);
+    }
+
+    public async Task<bool> UpdateAsync(Student student)
+    {
+        const string sql = """
+                           UPDATE dbo.Student
+                           SET StudentName = @StudentName,
+                               StudentSurname = @StudentSurname,
+                               StudentEmail = @StudentEmail
+                           WHERE StudentID = @StudentID;
+                           """;
+
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@StudentID", student.StudentID);
+        command.Parameters.AddWithValue("@StudentName", student.StudentName);
+        command.Parameters.AddWithValue("@StudentSurname", student.StudentSurname);
+        command.Parameters.AddWithValue("@StudentEmail", student.StudentEmail);
+
+        await connection.OpenAsync();
+        var rowsAffected = await command.ExecuteNonQueryAsync();
+        return rowsAffected > 0;
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        const string sql = """
+                           DELETE FROM dbo.Student
+                           WHERE StudentID = @StudentID;
+                           """;
+
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@StudentID", id);
+
+        await connection.OpenAsync();
+        var rowsAffected = await command.ExecuteNonQueryAsync();
+        return rowsAffected > 0;
     }
 
     private static Student MapStudent(SqlDataReader reader)
