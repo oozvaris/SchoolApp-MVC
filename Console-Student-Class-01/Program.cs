@@ -1,179 +1,107 @@
-﻿namespace Console_Student_Class_01
+using Microsoft.Extensions.Configuration;
+using SchoolApp_DAL.Data;
+
+namespace Console_Student_Class_01
 {
     internal class Program
     {
-        // Method to register a student
-        public static Student RegisterStudent()
+        static async Task Main(string[] args)
         {
-            Console.WriteLine("\nEnter Student ID:");
-            // int studentID = Convert.ToInt32(Console.ReadLine());
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .Build();
 
-            // Check if input is a valid number
-            int studentID;
-            if (!int.TryParse(Console.ReadLine(), out studentID))
-            {
-                throw new ArgumentException("Student ID must be a number.");
-            }
+            var studentRepository = new StudentRepository(configuration);
+            var courseRepository = new CourseRepository(configuration);
+            var studentService = new StudentService(studentRepository);
+            var courseService = new CourseService(courseRepository);
 
-            Console.WriteLine("Enter Student Name:");
-            string studentName = Console.ReadLine();
-
-            // Check if name exceeds 10 characters
-            if (studentName.Length > 10)
-            {
-                throw new ArgumentException("Student Name must not exceed 10 characters.");
-            }
-
-
-            //Console.WriteLine("Enter Student Surname:");
-            //string studentSurname = Console.ReadLine();
-
-            //Console.WriteLine("Enter Student Email:");
-            //string studentEmail = Console.ReadLine();
-
-            // Create and return the student object
-            Student student = new Student
-            {
-                StudentID = studentID,
-                StudentName = studentName,
-                //StudentSurname = studentSurname,
-                //StudentEmail = studentEmail
-            };
-
-            return student;
-        }
-
-        public static void DisplayStudentList(List<Student> students)
-        {
-            if (students.Count == 0)
-            {
-                Console.WriteLine("\nNo students registered.");
-                return;
-            }
-            Console.WriteLine("\nRegistered Students:");
-            foreach (var student in students)
-            {
-                Console.WriteLine($"ID: {student.StudentID}, Name: {student.StudentName}");
-            }
-        }
-
-        public static void DisplayStudentInfo(Student student)
-        {
-            Console.WriteLine($"Student ID: {student.StudentID}");
-            Console.WriteLine($"Student Name: {student.StudentName}");
-            Console.WriteLine($"Student Surname: {student.StudentSurname}");
-            Console.WriteLine($"Student Email: {student.StudentEmail}");
-        }
-
-        public static void FindStudentByID(List<Student> students, int studentID)
-        {
-            Student student = students.Find(s => s.StudentID == studentID);
-            if (student != null)
-            {
-                DisplayStudentInfo(student);
-            }
-            else
-            {
-                Console.WriteLine("Student not found.");
-            }
-        }
-
-        static void Main(string[] args)
-        {
-            Course course = new Course
-            {
-                CourseID = 1,
-                CourseName = "Mathematics",
-                CourseCode = "MATH101",
-                CourseCredit = 3
-            };
-            Course course2 = new Course
-            {
-                CourseID = 2,
-                CourseName = "Physics",
-                CourseCode = "PHYS101",
-                CourseCredit = 4
-            };
-            Course course3 = new Course
-            {
-                CourseID = 3,
-                CourseName = "Chemistry",
-                CourseCode = "CHEM101",
-                CourseCredit = 3
-            };
-            List<Course> courses = new List<Course> { course, course2, course3 };
-            List<Student> students = new List<Student>();
-
-            foreach (var item in courses)
-            {
-                Console.WriteLine($"Course ID: {item.CourseID}, Course Name: {item.CourseName}, Course Code: {item.CourseCode}, Course Credit: {item.CourseCredit}");
-            }
-
-            bool exit = false;
+            var exit = false;
 
             while (!exit)
             {
                 try
                 {
-                    // Display the menu
+                    var totalStudentCount = await studentService.GetStudentCountAsync();
+                    var totalCourseCount = await courseService.GetCourseCountAsync();
+
                     Console.WriteLine("---------------------------");
-                    Console.WriteLine("Student Registration System");
-                    Console.WriteLine("Total Student Count = " + students.Count);
+                    Console.WriteLine("Student & Course System");
+                    Console.WriteLine("Total Student Count = " + totalStudentCount);
+                    Console.WriteLine("Total Course Count = " + totalCourseCount);
                     Console.WriteLine("1 - Register Student");
                     Console.WriteLine("2 - Display All Students");
                     Console.WriteLine("3 - Find Student by ID");
-                    Console.WriteLine("4 - Exit");
+                    Console.WriteLine("4 - Find Student by Name");
+                    Console.WriteLine("5 - Register Course");
+                    Console.WriteLine("6 - Display All Courses");
+                    Console.WriteLine("7 - Find Course by ID");
+                    Console.WriteLine("8 - Find Course by Name");
+                    Console.WriteLine("9 - Exit");
 
-                    // Get user input
                     Console.Write("Please enter your choice: ");
-                    string userChoice = Console.ReadLine();
+                    var userChoice = Console.ReadLine();
 
                     if (userChoice == "1")
                     {
-                        // Register a new student
-                        Student student = RegisterStudent();
-
-                        Student? checkStudent =  students.Where(s => s.StudentID == student.StudentID).FirstOrDefault();
-                        if (checkStudent != null)
-                        {
-                            throw new ArgumentException("A student with this ID already exists. Student ID must be unique. Please Try Again.");
-                        }
-
-                        students.Add(student);
-                        Console.WriteLine($"Student Registered: {student.StudentName} {student.StudentSurname}");
+                        var student = Student.RegisterFromConsole();
+                        await studentService.RegisterStudentAsync(student);
+                        Console.WriteLine($"Student Registered: {student.StudentName} {student.StudentSurname} (ID: {student.StudentID})");
                     }
                     else if (userChoice == "2")
                     {
-                        // Display all registered students
-                        DisplayStudentList(students);
+                        await studentService.DisplayStudentListAsync();
                     }
                     else if (userChoice == "3")
                     {
-                        // Find a student by ID
                         Console.Write("Enter Student ID to find: ");
-                        int studentID = Convert.ToInt32(Console.ReadLine());
-                        FindStudentByID(students, studentID);
+                        var studentID = Convert.ToInt32(Console.ReadLine());
+                        await studentService.FindStudentByIdAsync(studentID);
                     }
-                    else if (userChoice == "4" || userChoice.Equals("exit", StringComparison.OrdinalIgnoreCase))
+                    else if (userChoice == "4")
                     {
-                        // Exit the program
+                        Console.Write("Enter Student Name to find: ");
+                        var studentName = Console.ReadLine() ?? string.Empty;
+                        await studentService.FindStudentByNameAsync(studentName);
+                    }
+                    else if (userChoice == "5")
+                    {
+                        var course = Course.RegisterFromConsole();
+                        await courseService.RegisterCourseAsync(course);
+                        Console.WriteLine($"Course Registered: {course.CourseName} ({course.CourseCode})");
+                    }
+                    else if (userChoice == "6")
+                    {
+                        await courseService.DisplayCourseListAsync();
+                    }
+                    else if (userChoice == "7")
+                    {
+                        Console.Write("Enter Course ID to find: ");
+                        var courseID = Convert.ToInt32(Console.ReadLine());
+                        await courseService.FindCourseByIdAsync(courseID);
+                    }
+                    else if (userChoice == "8")
+                    {
+                        Console.Write("Enter Course Name to find: ");
+                        var courseName = Console.ReadLine() ?? string.Empty;
+                        await courseService.FindCourseByNameAsync(courseName);
+                    }
+                    else if (userChoice == "9" || string.Equals(userChoice, "exit", StringComparison.OrdinalIgnoreCase))
+                    {
                         exit = true;
                         Console.WriteLine("Exiting the program...");
                     }
                     else
                     {
-                        // Invalid input
                         Console.WriteLine("Invalid choice, please try again.");
                     }
                 }
                 catch (Exception ex)
                 {
-                    // Catch any validation errors and show the error message
                     Console.WriteLine($"Error: {ex.Message}");
-                }                
+                }
             }
-
-            Console.ReadLine();
         }
     }
 }

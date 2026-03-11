@@ -55,6 +55,25 @@ public class CourseRepository : ICourseRepository
         return await reader.ReadAsync() ? MapCourse(reader) : null;
     }
 
+    public async Task<Course?> GetByNameAsync(string courseName)
+    {
+        const string sql = """
+                           SELECT TOP(1) CourseID, CourseName, CourseCode, CourseCredit
+                           FROM dbo.Course
+                           WHERE CourseName = @CourseName
+                           ORDER BY CourseID;
+                           """;
+
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@CourseName", courseName);
+
+        await connection.OpenAsync();
+        await using var reader = await command.ExecuteReaderAsync();
+
+        return await reader.ReadAsync() ? MapCourse(reader) : null;
+    }
+
     public async Task<Course?> GetByCodeAsync(string courseCode)
     {
         const string sql = """
