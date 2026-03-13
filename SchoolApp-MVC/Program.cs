@@ -8,7 +8,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<IStudentService, StudentService>();
 
 var app = builder.Build();
 
